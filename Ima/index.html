@@ -20,7 +20,10 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: p
 function preload() {
 
     game.load.atlas('breakout', 'assets/breakout.png', 'assets/breakout.json');
-    game.load.image('starfield', 'assets/starfield.jpg');
+    game.load.image('starfield', 'assets/background.jpg');
+    game.load.spritesheet('character', 'assets/character.png',96, 112);
+    game.load.spritesheet('fireball', 'assets/fireball.png',108, 138);
+    
     
     //background//
 
@@ -56,7 +59,7 @@ function create() {
 
     //fireballs//
     
-    Character = game.add.sprite(game.world.centerX, 500, 'breakout', 'assets/Character.png');
+    Character = game.add.sprite(game.world.centerX, 500, 'character', 0);
     Character.anchor.setTo(0.5, 0.5);
 
     game.physics.enable(Character, Phaser.Physics.ARCADE);
@@ -65,7 +68,7 @@ function create() {
     Character.body.bounce.set(1);
     Character.body.immovable = true;
 
-    ball = game.add.sprite(game.world.centerX, Character.y - 16, 'breakout', 'ball_1.png');
+    ball = game.add.sprite(game.world.centerX, Character.y - 16, 'fireball', 0);
     ball.anchor.set(0.5);
     ball.checkWorldBounds = true;
 
