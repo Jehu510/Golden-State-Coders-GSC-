@@ -19,8 +19,8 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: p
 
 function preload() {
 
-    game.load.atlas('breakout', 'assets/breakout.png', 'assets/breakout.json');
-    game.load.image('starfield', 'assets/background.jpg');
+//    game.load.atlas('breakout', 'assets/breakout.png', 'assets/breakout.json');
+    game.load.image('bg', 'assets/background.jpg');
     game.load.spritesheet('character', 'assets/character.png',96, 112);
     game.load.spritesheet('fireball', 'assets/fireball.png',108, 138);
     
@@ -30,7 +30,7 @@ function preload() {
 }
 
 //var ball; //
-var Character;
+var character;
 //var bricks;//
 
 var ballOnCharacter = true;
@@ -42,8 +42,6 @@ var scoreText;
 var livesText;
 var introText;
 
-var s;
-
 function create() {
 
     game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -51,24 +49,25 @@ function create() {
     //  We check bounds collisions against all walls other than the bottom one
     game.physics.arcade.checkCollision.down = false;
 
-    s = game.add.tileSprite(0, 0, 3000, 3000, 'starfield');
+    bg = game.add.sprite(0, 0,'bg');
+    bg.scale.setTo(1.25, 1.3);
 
-    bricks = game.add.group();
-    bricks.enableBody = true;
-    bricks.physicsBodyType = Phaser.Physics.ARCADE;
+//    bricks = game.add.group();
+//    bricks.enableBody = true;
+//    bricks.physicsBodyType = Phaser.Physics.ARCADE;
 
     //fireballs//
     
-    Character = game.add.sprite(game.world.centerX, 500, 'character', 0);
-    Character.anchor.setTo(0.5, 0.5);
+    character = game.add.sprite(game.world.centerX, 500, 'character', 0);
+    character.anchor.setTo(0.5, 0.5);
 
-    game.physics.enable(Character, Phaser.Physics.ARCADE);
+    game.physics.enable(character, Phaser.Physics.ARCADE);
 
-    Character.body.collideWorldBounds = true;
-    Character.body.bounce.set(1);
-    Character.body.immovable = true;
+    character.body.collideWorldBounds = true;
+    character.body.bounce.set(1);
+    character.body.immovable = true;
 
-    ball = game.add.sprite(game.world.centerX, Character.y - 16, 'fireball', 0);
+    ball = game.add.sprite(game.world.centerX, character.y - 16, 'fireball', 0);
     ball.anchor.set(0.5);
     ball.checkWorldBounds = true;
 
@@ -77,7 +76,7 @@ function create() {
     ball.body.collideWorldBounds = true;
     ball.body.bounce.set(1);
 
-    ball.animations.add('spin', [ 'ball_1.png', 'ball_2.png', 'ball_3.png', 'ball_4.png', 'ball_5.png' ], 50, true, false);
+    ball.animations.add('spin', [0,1], 20, true, false);
 
     ball.events.onOutOfBounds.add(ballLost, this);
 
@@ -95,25 +94,25 @@ function update () {
     //  Fun, but a little sea-sick inducing :) Uncomment if you like!
     // s.tilePosition.x += (game.input.speed.x / 2);
 
-    Character.x = game.input.x;
+    character.x = game.input.x;
 
-    if (Character.x < 24)
+    if (character.x < 24)
     {
-        Character.x = 24;
+        character.x = 24;
     }
-    else if (Character.x > game.width - 24)
+    else if (character.x > game.width - 24)
     {
-        Character.x = game.width - 24;
+        character.x = game.width - 24;
     }
 
     if (ballOnCharacter)
     {
-        ball.body.x = Character.x;
+        ball.body.x = character.x;
     }
     else
     {
-        game.physics.arcade.collide(ball, Character, ballHitCharacter, null, this);
-        game.physics.arcade.collide(ball, bricks, ballHitBrick, null, this);
+        game.physics.arcade.collide(ball, character, ballHitCharacter, null, this);
+//        game.physics.arcade.collide(ball, bricks, ballHitBrick, null, this);
     }
 
 }
@@ -144,7 +143,7 @@ function ballLost () {
     {
         ballOnCharacter = true;
 
-        ball.reset(Character.body.x + 16, Character.y - 16);
+        ball.reset(character.body.x + 16, character.y - 16);
         
         ball.animations.stop();
     }
@@ -160,49 +159,20 @@ function gameOver () {
 
 }
 
-function ballHitBrick (_ball, _brick) {
-
-    _brick.kill();
-
-    score += 10;
-
-    scoreText.text = 'score: ' + score;
-
-    //  Are they any bricks left?
-    if (bricks.countLiving() == 0)
-    {
-        //  New level starts
-        score += 1000;
-        scoreText.text = 'score: ' + score;
-        introText.text = '- Next Level -';
-
-        //  Let's move the ball back to the Character
-        ballOnCharacter = true;
-        ball.body.velocity.set(0);
-        ball.x = Character.x + 16;
-        ball.y = Character.y - 16;
-        ball.animations.stop();
-
-        //  And bring the bricks back from the dead :)
-        bricks.callAll('revive');
-    }
-
-}
-
-function ballHitCharacter (_ball, _Character) {
+function ballHitCharacter (_ball, _character) {
 
     var diff = 0;
 
-    if (_ball.x < _Character.x)
+    if (_ball.x < _character.x)
     {
         //  Ball is on the left-hand side of the Character
-        diff = _Character.x - _ball.x;
+        diff = _character.x - _ball.x;
         _ball.body.velocity.x = (-10 * diff);
     }
-    else if (_ball.x > _Character.x)
+    else if (_ball.x > _character.x)
     {
         //  Ball is on the right-hand side of the Character
-        diff = _ball.x -_Character.x;
+        diff = _ball.x -_character.x;
         _ball.body.velocity.x = (10 * diff);
     }
     else
